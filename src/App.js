@@ -37,9 +37,37 @@ function App() {
       });
   };
 
+  const handleSigOut = () => {
+    firebase
+      .auth()
+      .signOut()
+      .then((res) => {
+        const signedOutUser = {
+          isSignIn: false,
+          name: "",
+          photo: "",
+          email: "",
+        };
+        setUser(signedOutUser);
+      })
+      .catch((err) => {});
+    console.log("sign Out");
+  };
+
+  const handleBlur = (e) => {
+    console.log(e.target.value);
+    console.log(e.target.name);
+  };
+
+  const handleSubmit = () => {};
+
   return (
     <div className="App">
-      <button onClick={handleSignIn}>Sign in</button>
+      {user.isSignIn ? (
+        <button onClick={handleSigOut}>Sign Out</button>
+      ) : (
+        <button onClick={handleSignIn}>Sign in</button>
+      )}
       {user.isSignIn && (
         <div>
           <p>Welcome, {user.name}</p>
@@ -47,6 +75,29 @@ function App() {
           <img src={user.photo} alt="" />
         </div>
       )}
+
+      <form onSubmit={handleSubmit}>
+        <h1>Our own Authentication</h1>
+        <input
+          type="text"
+          onBlur={handleBlur}
+          name="email"
+          id=""
+          placeholder="Your email address"
+          required
+        />
+        <br />
+        <input
+          type="password"
+          onBlur={handleBlur}
+          name="password"
+          id=""
+          placeholder="Your password"
+          required
+        />
+        <br />
+        <input type="submit" value="Submit" />
+      </form>
     </div>
   );
 }

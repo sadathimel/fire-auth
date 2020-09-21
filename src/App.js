@@ -17,11 +17,12 @@ function App() {
     photo: "",
   });
 
-  const provider = new firebase.auth.GoogleAuthProvider();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  const fbProvider = new firebase.auth.FacebookAuthProvider();
   const handleSignIn = () => {
     firebase
       .auth()
-      .signInWithPopup(provider)
+      .signInWithPopup(googleProvider)
       .then((res) => {
         const { displayName, photoURL, email } = res.user;
         const isSignedInUser = {
@@ -39,6 +40,30 @@ function App() {
       });
   };
 
+  const handleFbSignIn = () => {
+    firebase
+      .auth()
+      .signInWithPopup(fbProvider)
+      .then(function (result) {
+        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+        var token = result.credential.accessToken;
+        // The signed-in user info.
+        var user = result.user;
+        console.log('fb user after sign in', user)
+        // ...
+      })
+      .catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+      });
+  }
+
   const handleSigOut = () => {
     firebase
       .auth()
@@ -51,7 +76,7 @@ function App() {
           email: "",
           error: "",
           newUser: false,
-          success: false
+          success: false,
         };
         setUser(signedOutUser);
       })
@@ -78,7 +103,7 @@ function App() {
 
   const handleSubmit = (e) => {
     // console.log(user.email, user.password)
-    if (newUser &&  user.email && user.password) {
+    if (newUser && user.email && user.password) {
       firebase
         .auth()
         .createUserWithEmailAndPassword(user.email, user.password)
@@ -99,16 +124,16 @@ function App() {
         });
     }
 
-    if(!newUser && user.email && user.password){
+    if (!newUser && user.email && user.password) {
       firebase
         .auth()
         .signInWithEmailAndPassword(user.email, user.password)
-        .then(res=>{
+        .then((res) => {
           const newUserInfo = { ...user };
           newUserInfo.error = "";
           newUserInfo.success = true;
           setUser(newUserInfo);
-          console.log('sign in user info',  res.user);
+          console.log("sign in user info", res.user);
         })
         .catch(function (error) {
           const newUserInfo = { ...user };
@@ -118,11 +143,10 @@ function App() {
         });
     }
 
-
     e.preventDefault();
   };
 
-  const updateUserName = name => {
+  const updateUserName = (name) => {
     const user = firebase.auth().currentUser;
 
     user
@@ -130,12 +154,12 @@ function App() {
         displayName: name,
       })
       .then(function () {
-        console.log('user name update successfully')
+        console.log("user name update successfully");
       })
       .catch(function (error) {
-        console.log(error)
+        console.log(error);
       });
-  }
+  };
   return (
     <div className="App">
       {user.isSignIn ? (
@@ -143,6 +167,9 @@ function App() {
       ) : (
         <button onClick={handleSignIn}>Sign in</button>
       )}
+      <br />
+      {<button onClick={handleFbSignIn}>Sign in using Facebook</button>}
+
       {user.isSignIn && (
         <div>
           <p>Welcome, {user.name}</p>
@@ -152,16 +179,23 @@ function App() {
       )}
 
       <h1>Our own Authentication</h1>
-      <input type="checkbox" onChange={()=>setNewUser(!newUser)} name="" id="" />
+      <input
+        type="checkbox"
+        onChange={() => setNewUser(!newUser)}
+        name=""
+        id=""
+      />
       <label htmlFor="newUser">New User Sign up</label>
       <form onSubmit={handleSubmit}>
-        {newUser && <input
-          type="text"
-          name="name"
-          id=""
-          onBlur={handleBlur}
-          placeholder="Your name"
-        />}
+        {newUser && (
+          <input
+            type="text"
+            name="name"
+            id=""
+            onBlur={handleBlur}
+            placeholder="Your name"
+          />
+        )}
         <br />
         <input
           type="text"
@@ -181,11 +215,13 @@ function App() {
           required
         />
         <br />
-        <input type="submit" value={newUser ? "Sign up" : "Sign in" }/>
+        <input type="submit" value={newUser ? "Sign up" : "Sign in"} />
       </form>
       <p style={{ color: "red" }}>{user.error}</p>
       {user.success && (
-        <p style={{ color: "green" }}>User {newUser ? 'created' : 'Logged in'} successfully</p>
+        <p style={{ color: "green" }}>
+          User {newUser ? "created" : "Logged in"} successfully
+        </p>
       )}
     </div>
   );

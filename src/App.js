@@ -108,6 +108,7 @@ function App() {
           newUserInfo.error = "";
           newUserInfo.success = true;
           setUser(newUserInfo);
+          console.log('sign in user info',  res.user);
         })
         .catch(function (error) {
           const newUserInfo = { ...user };
@@ -180,7 +181,7 @@ function App() {
           required
         />
         <br />
-        <input type="submit" value="Submit" />
+        <input type="submit" value={newUser ? "Sign up" : "Sign in" }/>
       </form>
       <p style={{ color: "red" }}>{user.error}</p>
       {user.success && (
